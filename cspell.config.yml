@@ -1,0 +1,27 @@
+---
+
+dictionaryDefinitions:
+  - name: Spellcheck Overrides
+    path: ./cspell_dictionary.txt
+    addWords: true
+
+dictionaries:
+  - overrides
+
+words:
+  - "floatingip"
+  - "gecos"
+  - "keypair"
+  - "regexall"
+  - "secgroup"
+  - "snapp"
+  - "tflint"
+  - "tfvars"
+  - "toset"
+
+ignorePaths:
+  - "**/.github/CODEOWNERS"
+  - "**/.github/settings.yml"
+  - "**/.gitignore"
+  - "**/.pre-commit-config.yaml"
+  - "**/cspell.config.yml"

@@ -7,6 +7,7 @@ variable "virtual_machine" {
     flavor             = string
     image              = string
     domain             = string
+    groups             = list(string)
     hostname           = string
     network            = string
     floating_ip        = string
@@ -32,6 +33,7 @@ variable "virtual_machine" {
       flavor : "The name of the flavor that determines the amount of cpu, memory, and disk allocated to the virtual machine (e.g. m1.medium)."
       image : "The image used to instantiate the virtual machine."
       domain : "The optional network domain used for constructing a fqdn for the virtual machine."
+      groups : "An array of Ansible inventory group names that the virtual machine should be associated with."
       hostname : "The optional short (unqualified) hostname of the instance to be created."
       network : "The network the virtual machine resides on."
       floating_ip : "IP Address of an existing floating IP."

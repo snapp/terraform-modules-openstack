@@ -1,14 +1,22 @@
-# https://registry.terraform.io/providers/terraform-provider-openstack/openstack/latest/docs
+
 
 terraform {
   required_version = ">=1.0.0"
 
+  # https://registry.terraform.io/providers/terraform-provider-openstack/openstack/latest/docs
   required_providers {
     openstack = {
       source  = "terraform-provider-openstack/openstack"
       version = "1.54.0"
     }
 
+    # https://registry.terraform.io/providers/ansible/ansible/latest/docs
+    ansible = {
+      version = "~> 1.1.0"
+      source  = "ansible/ansible"
+    }
+
+    # https://registry.terraform.io/providers/hashicorp/random/latest/docs
     random = {
       source  = "hashicorp/random"
       version = "3.6.0"
@@ -106,4 +114,16 @@ resource "openstack_compute_instance_v2" "virtual_machine" {
     EOT
 : ""}
   EOF
+}
+
+# create an ansible inventory host entry
+resource "ansible_host" "virtual_machine" { 
+  name = local.fqdn
+  groups = length(coalesce(var.virtual_machine.groups, [])) > 0 ? concat(["terraform_managed"], var.virtual_machine.groups) : ["terraform_managed"]
+  variables = {
+    instance_name = local.instance_name
+    hostname = local.hostname
+    domain = local.domain
+    description = local.description
+  }
 }

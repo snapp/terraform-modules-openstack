@@ -7,6 +7,11 @@ ci:
   autoupdate_prs: true
 
 repos:
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.18.2
+    hooks:
+      - id: gitleaks
+
   - repo: https://github.com/antonbabenko/pre-commit-terraform
     rev: v1.86.0
     hooks:

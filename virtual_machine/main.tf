@@ -1,25 +1,25 @@
 
 
 terraform {
-  required_version = ">=1.0.0"
+  required_version = ">=1.5.0"
 
   # https://registry.terraform.io/providers/terraform-provider-openstack/openstack/latest/docs
   required_providers {
     openstack = {
       source  = "terraform-provider-openstack/openstack"
-      version = "1.54.0"
+      version = "~>1.54.1"
     }
 
     # https://registry.terraform.io/providers/ansible/ansible/latest/docs
     ansible = {
-      version = "~> 1.1.0"
+      version = "~> 1.2.0"
       source  = "ansible/ansible"
     }
 
     # https://registry.terraform.io/providers/hashicorp/random/latest/docs
     random = {
       source  = "hashicorp/random"
-      version = "3.6.0"
+      version = "~> 3.6.0"
     }
   }
 }

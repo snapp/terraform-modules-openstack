@@ -117,7 +117,8 @@ resource "openstack_compute_instance_v2" "virtual_machine" {
 }
 
 # create an ansible inventory host entry
-resource "ansible_host" "virtual_machine" { 
+resource "ansible_host" "virtual_machine" {
+  count = var.virtual_machine.enable_ansible_inventory ? 1 : 0
   name = local.fqdn
   groups = length(coalesce(var.virtual_machine.groups, [])) > 0 ? concat(["terraform_managed"], var.virtual_machine.groups) : ["terraform_managed"]
   variables = {

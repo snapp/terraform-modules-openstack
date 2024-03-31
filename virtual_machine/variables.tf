@@ -24,6 +24,7 @@ variable "virtual_machine" {
       sudo_rule      = string
       uid            = number
     })
+    enable_ansible_inventory = bool
   })
   description = <<-EOT
     virtual_machine = {
@@ -50,6 +51,7 @@ variable "virtual_machine" {
         sudo_rule : "Sudo rule applied to the user used to access the instance (e.g. 'ALL=(ALL) ALL')."
         uid : "The optional user ID of the user used to access the instance."
       }
+      enable_ansible_inventory : "Whether to create an Ansible inventory host entry for the virtual machine."
     }
   EOT
 }

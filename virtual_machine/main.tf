@@ -19,7 +19,7 @@ terraform {
     # https://registry.terraform.io/providers/hashicorp/random/latest/docs
     random = {
       source  = "hashicorp/random"
-      version = "~> 3.6.0"
+      version = "~> 3.6.1"
     }
   }
 }
@@ -37,37 +37,9 @@ data "openstack_networking_network_v2" "network" {
   name = var.virtual_machine.network
 }
 
-data "openstack_networking_subnet_v2" "network_subnet" {
-  network_id = data.openstack_networking_network_v2.network.id
-}
-
-data "openstack_networking_secgroup_v2" "security_groups" {
-  for_each = toset(var.virtual_machine.security_groups)
-  name     = each.value
-}
-
-resource "openstack_networking_port_v2" "network_port" {
-  name       = local.fqdn
-  network_id = data.openstack_networking_network_v2.network.id
-  security_group_ids = [
-    for security_group_name in var.virtual_machine.security_groups :
-    data.openstack_networking_secgroup_v2.security_groups[security_group_name].id
-  ]
-
-  fixed_ip {
-    subnet_id = data.openstack_networking_subnet_v2.network_subnet.id
-  }
-}
-
-resource "openstack_networking_floatingip_v2" "floating_ip" {
-  count = (var.virtual_machine.attach_floating_ip && try(coalesce(var.virtual_machine.floating_ip, ""), "") == "") ? 1 : 0
-  pool  = var.virtual_machine.floating_ip_pool
-}
-
-resource "openstack_networking_floatingip_associate_v2" "floating_ip" {
-  count       = var.virtual_machine.attach_floating_ip ? 1 : 0
-  floating_ip = (try(coalesce(var.virtual_machine.floating_ip, ""), "") == "") ? openstack_networking_floatingip_v2.floating_ip[count.index].address : var.virtual_machine.floating_ip
-  port_id     = openstack_networking_port_v2.network_port.id
+data "openstack_dns_zone_v2" "zone" {
+  count = var.virtual_machine.attach_floating_ip ? 1 : 0
+  name  = "${lower(local.domain)}."
 }
 
 resource "openstack_compute_instance_v2" "virtual_machine" {
@@ -76,10 +48,10 @@ resource "openstack_compute_instance_v2" "virtual_machine" {
   flavor_id       = data.openstack_compute_flavor_v2.flavor.id
   key_pair        = var.virtual_machine.ssh_keypair
   security_groups = var.virtual_machine.security_groups
-  network {
-    port = openstack_networking_port_v2.network_port.id
-  }
 
+  network {
+    name = data.openstack_networking_network_v2.network.name
+  }
   metadata = {
     X-Contact : var.virtual_machine.contact
     X-Description : local.description
@@ -89,12 +61,11 @@ resource "openstack_compute_instance_v2" "virtual_machine" {
     "X-Contact: ${var.virtual_machine.contact}"
   ]
 
-  # inject user data if virtual machine image does not look like a windows image
   user_data = length(regexall("(?i)^win", var.virtual_machine.image)) > 0 ? null : <<-EOF
   #cloud-config
   hostname: ${local.hostname}
   fqdn: ${local.fqdn}
-  prefer_fqdn_over_hostname: true
+  prefer_fqdn_over_hostname: false
   ${var.virtual_machine.user != null || try(coalesce(var.virtual_machine.root_password, ""), "") != "" ? "users:" : ""}
   ${var.virtual_machine.user != null ? <<-EOT
       - name: "${var.virtual_machine.user.username}"
@@ -116,15 +87,47 @@ resource "openstack_compute_instance_v2" "virtual_machine" {
   EOF
 }
 
+resource "openstack_networking_floatingip_v2" "floating_ip" {
+  count       = var.virtual_machine.attach_floating_ip ? 1 : 0
+  description = local.fqdn
+  pool        = var.virtual_machine.floating_ip_pool
+  fixed_ip    = openstack_compute_instance_v2.virtual_machine.network[count.index].fixed_ip_v4
+  port_id     = data.openstack_networking_port_v2.port.id
+  tags = [
+    "X-Contact: ${var.virtual_machine.contact}"
+  ]
+}
+
+resource "openstack_networking_floatingip_associate_v2" "floating_ip" {
+  count       = var.virtual_machine.attach_floating_ip ? 1 : 0
+  floating_ip = openstack_networking_floatingip_v2.floating_ip[count.index].address
+  port_id     = data.openstack_networking_port_v2.port.id
+}
+
+resource "openstack_dns_recordset_v2" "recordset" {
+  count   = var.virtual_machine.attach_floating_ip ? 1 : 0
+  name    = "${local.fqdn}."
+  records = [openstack_networking_floatingip_v2.floating_ip[count.index].address, openstack_compute_instance_v2.virtual_machine.network[count.index].fixed_ip_v4]
+  ttl     = 60
+  type    = "A"
+  zone_id = data.openstack_dns_zone_v2.zone[count.index].id
+}
+
+data "openstack_networking_port_v2" "port" {
+  network_id = data.openstack_networking_network_v2.network.id
+  device_id  = openstack_compute_instance_v2.virtual_machine.id
+  fixed_ip   = openstack_compute_instance_v2.virtual_machine.network[0].fixed_ip_v4
+}
+
 # create an ansible inventory host entry
 resource "ansible_host" "virtual_machine" {
-  count = var.virtual_machine.enable_ansible_inventory ? 1 : 0
-  name = local.fqdn
-  groups = length(coalesce(var.virtual_machine.groups, [])) > 0 ? concat(["terraform_managed"], var.virtual_machine.groups) : ["terraform_managed"]
+  count  = var.virtual_machine.enable_ansible_inventory ? 1 : 0
+  name   = local.fqdn
+  groups = length(coalesce(var.virtual_machine.groups, [])) > 0 ? var.virtual_machine.groups : ["terraform_managed"]
   variables = {
     instance_name = local.instance_name
-    hostname = local.hostname
-    domain = local.domain
-    description = local.description
+    hostname      = local.hostname
+    domain        = local.domain
+    description   = local.description
   }
 }

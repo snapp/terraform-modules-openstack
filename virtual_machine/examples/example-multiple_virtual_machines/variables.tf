@@ -9,7 +9,6 @@ variable "virtual_machine" {
     domain             = string
     hostname           = string
     network            = string
-    floating_ip        = string
     floating_ip_pool   = string
     attach_floating_ip = bool
     security_groups    = list(string)
@@ -34,7 +33,6 @@ variable "virtual_machine" {
       domain : "The optional network domain used for constructing a fqdn for the virtual machine."
       hostname : "The optional short (unqualified) hostname of the instance to be created."
       network : "The network the virtual machine resides on."
-      floating_ip : "IP Address of an existing floating IP."
       floating_ip_pool : "The name of the floating IP pool from which to allocate a floating IP address."
       attach_floating_ip : "Whether to attach a floating IP address to the virtual machine."
       security_groups : "An array of security group names that should be applied to the virtual machine."

@@ -65,7 +65,7 @@ resource "openstack_compute_instance_v2" "virtual_machine" {
   #cloud-config
   hostname: ${local.hostname}
   fqdn: ${local.fqdn}
-  prefer_fqdn_over_hostname: false
+  prefer_fqdn_over_hostname: true
   ${var.virtual_machine.user != null || try(coalesce(var.virtual_machine.root_password, ""), "") != "" ? "users:" : ""}
   ${var.virtual_machine.user != null ? <<-EOT
       - name: "${var.virtual_machine.user.username}"

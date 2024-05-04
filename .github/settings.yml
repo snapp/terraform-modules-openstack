@@ -2,7 +2,7 @@
 
 # These settings are synced to GitHub by https://probot.github.io/apps/settings
 repository:
-  description: |
+  description: |-
     This monorepo of Terraform modules is intended as a convenience for managing commonly used Openstack resources.
 
   has_issues: true

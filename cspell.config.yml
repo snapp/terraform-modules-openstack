@@ -9,15 +9,17 @@ dictionaries:
   - overrides
 
 words:
-  - "floatingip"
-  - "gecos"
-  - "keypair"
-  - "regexall"
-  - "secgroup"
-  - "snapp"
-  - "tflint"
-  - "tfvars"
-  - "toset"
+  - concat
+  - floatingip
+  - gecos
+  - keypair
+  - recordset
+  - regexall
+  - secgroup
+  - snapp
+  - tflint
+  - tfvars
+  - toset
 
 ignorePaths:
   - "**/.github/CODEOWNERS"

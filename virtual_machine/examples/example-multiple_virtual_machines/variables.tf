@@ -7,6 +7,7 @@ variable "virtual_machine" {
     flavor             = string
     image              = string
     domain             = string
+    groups             = list(string)
     hostname           = string
     network            = string
     floating_ip_pool   = string
@@ -22,6 +23,7 @@ variable "virtual_machine" {
       sudo_rule      = string
       uid            = number
     })
+    enable_ansible_inventory = bool
   })
   description = <<-EOT
     virtual_machine = {
@@ -31,6 +33,7 @@ variable "virtual_machine" {
       flavor : "The name of the flavor that determines the amount of cpu, memory, and disk allocated to the virtual machine (e.g. m1.medium)."
       image : "The image used to instantiate the virtual machine."
       domain : "The optional network domain used for constructing a fqdn for the virtual machine."
+      groups : "An array of Ansible inventory group names that the virtual machine should be associated with."
       hostname : "The optional short (unqualified) hostname of the instance to be created."
       network : "The network the virtual machine resides on."
       floating_ip_pool : "The name of the floating IP pool from which to allocate a floating IP address."
@@ -46,6 +49,7 @@ variable "virtual_machine" {
         sudo_rule : "Sudo rule applied to the user used to access the instance (e.g. 'ALL=(ALL) ALL')."
         uid : "The optional user ID of the user used to access the instance."
       }
+      enable_ansible_inventory : "Whether to create an Ansible inventory host entry for the virtual machine."
     }
   EOT
 }

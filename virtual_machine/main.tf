@@ -70,10 +70,11 @@ resource "openstack_compute_instance_v2" "virtual_machine" {
   ${var.virtual_machine.user != null ? <<-EOT
       - name: "${var.virtual_machine.user.username}"
         gecos: "${var.virtual_machine.user.display_name}"
-        hashed_passwd: ${var.virtual_machine.user.password}
+        ${try(coalesce(var.virtual_machine.user.password, ""), "") != "" ? "hashed_passwd: \"${var.virtual_machine.user.password}\"" : ""}
         lock-passwd: false
-        sudo: "${var.virtual_machine.user.sudo_rule}"
+        ${try(coalesce(var.virtual_machine.user.sudo_rule, ""), "") != "" ? "sudo: \"${var.virtual_machine.user.sudo_rule}\"" : "sudo: false"}
         ${try(coalesce(var.virtual_machine.user.uid, ""), "") != "" ? "uid: \"${var.virtual_machine.user.uid}\"" : ""}
+        ${try(coalesce(var.virtual_machine.user.homedir, ""), "") != "" ? "homedir: \"${var.virtual_machine.user.homedir}\"" : ""}
         ssh_authorized_keys:
           - ${var.virtual_machine.user.ssh_public_key}
     EOT

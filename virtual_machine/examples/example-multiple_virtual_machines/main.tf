@@ -28,7 +28,8 @@ module "test3" {
   virtual_machine = merge(var.virtual_machine, {
     attach_floating_ip = true
     user = merge(var.virtual_machine.user, {
-      uid = "10000"
+      uid     = "10000"
+      homedir = "/var/lib/test3"
     })
   })
 }

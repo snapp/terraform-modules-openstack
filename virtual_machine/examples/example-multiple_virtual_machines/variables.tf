@@ -19,6 +19,7 @@ variable "virtual_machine" {
       username       = string
       display_name   = string
       password       = string
+      homedir        = string
       ssh_public_key = string
       sudo_rule      = string
       uid            = number
@@ -44,7 +45,8 @@ variable "virtual_machine" {
       user = {
         username : "User used to access the instance."
         display_name : "Full name of the user used to access the instance."
-        password : "Password for user used to access the instance (plain-text or hashed)."
+        password : "The optional password for user used to access the instance (plain-text or hashed)."
+        homedir : "The optional home directory for user used to access the instance (defaults to /home)."
         ssh_public_key : "SSH public key used to access the instance."
         sudo_rule : "Sudo rule applied to the user used to access the instance (e.g. 'ALL=(ALL) ALL')."
         uid : "The optional user ID of the user used to access the instance."

@@ -37,11 +37,6 @@ data "openstack_networking_network_v2" "network" {
   name = var.virtual_machine.network
 }
 
-data "openstack_dns_zone_v2" "zone" {
-  count = var.virtual_machine.attach_floating_ip ? 1 : 0
-  name  = "${lower(local.domain)}."
-}
-
 resource "openstack_compute_instance_v2" "virtual_machine" {
   name            = local.instance_name
   image_id        = data.openstack_images_image_v2.image.id
@@ -61,6 +56,7 @@ resource "openstack_compute_instance_v2" "virtual_machine" {
     "X-Contact: ${var.virtual_machine.contact}"
   ]
 
+  # TODO|2024-05-08| Add gid to user_data so uid/gid are consistent
   user_data = length(regexall("(?i)^win", var.virtual_machine.image)) > 0 ? null : <<-EOF
   #cloud-config
   hostname: ${local.hostname}
@@ -74,6 +70,7 @@ resource "openstack_compute_instance_v2" "virtual_machine" {
         lock-passwd: false
         ${try(coalesce(var.virtual_machine.user.sudo_rule, ""), "") != "" ? "sudo: \"${var.virtual_machine.user.sudo_rule}\"" : "sudo: false"}
         ${try(coalesce(var.virtual_machine.user.uid, ""), "") != "" ? "uid: \"${var.virtual_machine.user.uid}\"" : ""}
+        ${try(coalesce(var.virtual_machine.user.uid, ""), "") != "" ? "gid: \"${var.virtual_machine.user.uid}\"" : ""}
         ${try(coalesce(var.virtual_machine.user.homedir, ""), "") != "" ? "homedir: \"${var.virtual_machine.user.homedir}\"" : ""}
         ssh_authorized_keys:
           - ${var.virtual_machine.user.ssh_public_key}
@@ -88,9 +85,17 @@ resource "openstack_compute_instance_v2" "virtual_machine" {
   EOF
 }
 
+data "openstack_networking_port_v2" "port" {
+  network_id = data.openstack_networking_network_v2.network.id
+  device_id  = openstack_compute_instance_v2.virtual_machine.id
+  fixed_ip   = openstack_compute_instance_v2.virtual_machine.network[0].fixed_ip_v4
+}
+
 resource "openstack_networking_floatingip_v2" "floating_ip" {
   count       = var.virtual_machine.attach_floating_ip ? 1 : 0
   description = local.fqdn
+  dns_name    = lower(local.hostname)
+  dns_domain  = "${lower(local.domain)}."
   pool        = var.virtual_machine.floating_ip_pool
   fixed_ip    = openstack_compute_instance_v2.virtual_machine.network[count.index].fixed_ip_v4
   port_id     = data.openstack_networking_port_v2.port.id
@@ -103,21 +108,6 @@ resource "openstack_networking_floatingip_associate_v2" "floating_ip" {
   count       = var.virtual_machine.attach_floating_ip ? 1 : 0
   floating_ip = openstack_networking_floatingip_v2.floating_ip[count.index].address
   port_id     = data.openstack_networking_port_v2.port.id
-}
-
-resource "openstack_dns_recordset_v2" "recordset" {
-  count   = var.virtual_machine.attach_floating_ip ? 1 : 0
-  name    = "${local.fqdn}."
-  records = [openstack_networking_floatingip_v2.floating_ip[count.index].address, openstack_compute_instance_v2.virtual_machine.network[count.index].fixed_ip_v4]
-  ttl     = 60
-  type    = "A"
-  zone_id = data.openstack_dns_zone_v2.zone[count.index].id
-}
-
-data "openstack_networking_port_v2" "port" {
-  network_id = data.openstack_networking_network_v2.network.id
-  device_id  = openstack_compute_instance_v2.virtual_machine.id
-  fixed_ip   = openstack_compute_instance_v2.virtual_machine.network[0].fixed_ip_v4
 }
 
 # create an ansible inventory host entry

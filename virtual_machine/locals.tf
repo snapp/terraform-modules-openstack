@@ -11,7 +11,7 @@ locals {
 
   hostname = coalesce(var.virtual_machine.hostname, local.instance_name)
 
-  domain = try(coalesce(var.virtual_machine.domain, ""), "") != "" ? var.virtual_machine.domain : "compute.internal"
+  domain = try(coalesce(var.virtual_machine.domain, ""), "") != "" ? var.virtual_machine.domain : "internal"
 
   fqdn = "${lower(local.hostname)}.${lower(local.domain)}"
 

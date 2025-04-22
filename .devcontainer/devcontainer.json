@@ -1,0 +1,65 @@
+{
+  "build": {
+    "context": "..",
+    "dockerfile": "Containerfile"
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "gruntfuggly.todo-tree",
+        "hashicorp.terraform"
+      ],
+      "settings": {
+        "github.copilot.enable": {
+          "enabled": false
+        },
+        "todo-tree.general.tags": [
+          "BUG",
+          "FIX",
+          "FIXME",
+          "NOTE",
+          "REDO",
+          "TODO"
+        ],
+        "todo-tree.highlights.customHighlight": {
+          "BUG": {
+            "background": "#F56E6E",
+            "foreground": "#FFFFFF",
+            "icon": "$(bug)"
+          },
+          "FIX": {
+            "background": "#EE0000",
+            "foreground": "#FFFFFF",
+            "iconColour": "#EE0000"
+          },
+          "FIXME": {
+            "background": "#EE0000",
+            "foreground": "#FFFFFF",
+            "iconColour": "#EE0000"
+          },
+          "NOTE": {
+            "background": "#0066CC",
+            "foreground": "#E0E0E0",
+            "icon": "$(note)"
+          },
+          "REDO": {
+            "background": "#37A3A3",
+            "foreground": "#1F1F1F",
+            "icon": "$(redo)"
+          },
+          "TODO": {
+            "background": "#FFE072",
+            "foreground": "#1F1F1F",
+            "iconColour": "#FFE072"
+          }
+        }
+      }
+    }
+  },
+  "name": "🅣",
+  "privileged": false,
+  "runArgs": [
+    "--volume",
+    ".devcontainer/bashrc:/root/.bashrc:ro"
+  ]
+}

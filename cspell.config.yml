@@ -9,17 +9,39 @@ dictionaries:
   - overrides
 
 words:
+  - CDPATH
+  - checkwinsize
+  - COLORTERM
+  - Colour
   - concat
+  - Containerfile
+  - ensurepip
   - floatingip
   - gecos
+  - gruntfuggly
+  - histappend
+  - HISTCONTROL
+  - HISTFILESIZE
+  - HISTSIZE
+  - HISTTIMEFORMAT
+  - ignoredups
+  - ignorespace
+  - iputils
   - keypair
+  - nodocs
   - recordset
   - regexall
   - secgroup
+  - setopt
+  - shopt
   - snapp
+  - terrascan
   - tflint
+  - tfsec
+  - tfupdate
   - tfvars
   - toset
+  - truecolor
 
 ignorePaths:
   - "**/.github/CODEOWNERS"

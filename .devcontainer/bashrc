@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+
+# Source global definitions
+if [ -f /etc/bashrc ]; then
+  source /etc/bashrc
+fi
+
+# Avoid duplicate lines in the history
+export HISTCONTROL='ignoredups:ignorespace'
+
+# Number of lines in the history file
+export HISTFILESIZE='20000000000'
+
+# Number of commands to remember
+export HISTSIZE='10000000000'
+
+# Insert timestamp with each history entry
+export HISTTIMEFORMAT='%Y%m%d_%H%M%S  '
+
+# Append to history prior to issuing each prompt
+export PROMPT_COMMAND='history -a'
+
+# Set prompt
+export PS1='[\W]🅣  '
+
+# Add $HOME to cd path
+export CDPATH=".:${HOME}:/workspaces"
+
+# Set terminal colors
+export COLORTERM=truecolor
+export TERM=xterm-256color
+
+# Add asdf shims to path
+export PATH="${HOME}/.asdf/shims:${PATH}"
+
+# Short-List
+alias ls='ls --color=auto'
+
+# Long-List
+alias ll='ls -l --color=auto'
+
+# append to the history file, don't overwrite it
+shopt -s histappend
+
+# update the values of LINES and COLUMNS after each command
+shopt -s checkwinsize

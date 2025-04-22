@@ -1,0 +1,19 @@
+# This needs to generally match the container host's environment.
+ARG UBI_VERSION=9
+
+# Red Hat Universal Base Image (UBI)
+FROM registry.access.redhat.com/ubi${UBI_VERSION}:latest
+
+ARG RUNTIME_USER_HOME=/root
+
+# Install Developer Dependencies
+RUN printf 'Install Developer Dependencies\n'; \
+    dnf install -y --nodocs --setopt install_weak_deps=false \
+        bash-completion git iputils jq unzip && \
+    dnf clean all && \
+    python3 -m ensurepip --upgrade
+
+# Install asdf tools
+COPY .devcontainer/tool-versions ${RUNTIME_USER_HOME}/.tool-versions
+RUN curl -L https://github.com/asdf-vm/asdf/releases/download/v0.16.7/asdf-v0.16.7-linux-amd64.tar.gz | tar xzf - -C /usr/local/bin && \
+    while read tool version; do asdf plugin add "${tool}"; asdf install "${tool}" "${version}"; done < "${RUNTIME_USER_HOME}/.tool-versions"

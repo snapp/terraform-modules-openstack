@@ -24,6 +24,13 @@ variable "virtual_machine" {
       sudo_rule      = string
       uid            = number
     })
+    volumes = list(object({
+      name                  = string
+      description           = string
+      size                  = number
+      volume_type           = string
+      delete_on_termination = bool
+    }))
     enable_ansible_inventory = bool
   })
   description = <<-EOT

@@ -28,11 +28,3 @@ export PROMPT_COMMAND='history -a'
 
 # Set prompt
 export PS1='[\W]🅣  '
-
-# Install ASDF Tools
-asdf-install-tools() {
-  while read tool version; do
-    asdf plugin add "${tool}"
-    asdf install "${tool}" "${version}"
-  done < "${HOME}/.tool-versions"
-}

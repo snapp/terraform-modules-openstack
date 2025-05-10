@@ -5,7 +5,7 @@ variable "virtual_machine" {
     contact            = string
     description        = string
     flavor             = string
-    image              = string
+    image              = optional(string)
     domain             = string
     groups             = list(string)
     hostname           = string
@@ -13,9 +13,9 @@ variable "virtual_machine" {
     floating_ip_pool   = string
     attach_floating_ip = bool
     security_groups    = list(string)
-    ssh_keypair        = string
-    root_password      = string
-    user = object({
+    ssh_keypair        = optional(string)
+    root_password      = optional(string)
+    user = optional(object({
       username       = string
       display_name   = string
       password       = string
@@ -23,7 +23,14 @@ variable "virtual_machine" {
       ssh_public_key = string
       sudo_rule      = string
       uid            = number
-    })
+    }))
+    volumes = optional(list(object({
+      name                  = string
+      description           = string
+      size                  = number
+      volume_type           = string
+      delete_on_termination = bool
+    })))
     enable_ansible_inventory = bool
   })
   description = <<-EOT
@@ -51,6 +58,15 @@ variable "virtual_machine" {
         sudo_rule : "Sudo rule applied to the user used to access the instance (e.g. 'ALL=(ALL) ALL')."
         uid : "The optional user ID of the user used to access the instance."
       }
+      volumes = [
+        volume = {
+          name            = "The name of the volume when listed on the hypervisor."
+          description     = "The optional description of the volume."
+          size            = "The size of the volume in GiB allocated to the virtual machine (e.g. 250)."
+          volume_type     = "Type of volume to create (e.g. 'SSD', etc.)."
+          delete_on_termination = "Whether to delete the volume when the virtual machine is deleted."
+        }
+      ]
       enable_ansible_inventory : "Whether to create an Ansible inventory host entry for the virtual machine."
     }
   EOT

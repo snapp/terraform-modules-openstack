@@ -24,6 +24,13 @@ variable "virtual_machine" {
       sudo_rule      = string
       uid            = number
     })
+    volumes = list(object({
+      name                  = string
+      description           = string
+      size                  = number
+      volume_type           = string
+      delete_on_termination = bool
+    }))
     enable_ansible_inventory = bool
   })
   description = <<-EOT
@@ -51,6 +58,15 @@ variable "virtual_machine" {
         sudo_rule : "Sudo rule applied to the user used to access the instance (e.g. 'ALL=(ALL) ALL')."
         uid : "The optional user ID of the user used to access the instance."
       }
+      volumes = [
+        volume = {
+          name            = "The name of the volume when listed on the hypervisor."
+          description     = "The optional description of the volume."
+          size            = "The size of the volume in GiB allocated to the virtual machine (e.g. 250)."
+          volume_type     = "Type of volume to create (e.g. 'SSD', etc.)."
+          delete_on_termination = "Whether to delete the volume when the virtual machine is deleted."
+        }
+      ]
       enable_ansible_inventory : "Whether to create an Ansible inventory host entry for the virtual machine."
     }
   EOT

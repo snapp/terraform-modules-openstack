@@ -1,5 +1,3 @@
-
-
 terraform {
   required_version = ">=1.5.0"
 
@@ -19,30 +17,59 @@ terraform {
     # https://registry.terraform.io/providers/hashicorp/random/latest/docs
     random = {
       source  = "hashicorp/random"
-      version = "~> 3.7.1"
+      version = "~> 3.7.2"
     }
   }
 }
 
+# https://registry.terraform.io/providers/terraform-provider-openstack/openstack/latest/docs/resources/compute_flavor_v2
 data "openstack_compute_flavor_v2" "flavor" {
   name = var.virtual_machine.flavor
 }
 
+# https://registry.terraform.io/providers/terraform-provider-openstack/openstack/latest/docs/data-sources/images_image_v2
 data "openstack_images_image_v2" "image" {
   name        = var.virtual_machine.image
   most_recent = true
 }
 
+# https://registry.terraform.io/providers/terraform-provider-openstack/openstack/latest/docs/data-sources/networking_network_v2
 data "openstack_networking_network_v2" "network" {
   name = var.virtual_machine.network
 }
 
+# https://registry.terraform.io/providers/terraform-provider-openstack/openstack/latest/docs/resources/blockstorage_volume_v3
+resource "openstack_blockstorage_volume_v3" "volume" {
+  count       = length(var.virtual_machine.volumes)
+  name        = var.virtual_machine.volumes[count.index].name
+  description = var.virtual_machine.volumes[count.index].description
+  size        = var.virtual_machine.volumes[count.index].size
+  volume_type = var.virtual_machine.volumes[count.index].volume_type
+  metadata = {
+    X-Contact : var.virtual_machine.contact
+    X-Description : local.description
+  }
+}
+
+# https://registry.terraform.io/providers/terraform-provider-openstack/openstack/latest/docs/resources/compute_instance_v2
 resource "openstack_compute_instance_v2" "virtual_machine" {
   name            = local.instance_name
-  image_id        = data.openstack_images_image_v2.image.id
+  # image_id        = length(var.virtual_machine.volumes) == 0 ? data.openstack_images_image_v2.image.id : null
   flavor_id       = data.openstack_compute_flavor_v2.flavor.id
   key_pair        = var.virtual_machine.ssh_keypair
   security_groups = var.virtual_machine.security_groups
+
+  # Include block_device only if volumes are provided
+  dynamic "block_device" {
+    for_each = length(var.virtual_machine.volumes) > 0 ? { for idx, volume in var.virtual_machine.volumes : idx => volume } : {}
+    content {
+      uuid                  = openstack_blockstorage_volume_v3.volume[block_device.key].id
+      source_type           = "volume"
+      destination_type      = "volume"
+      boot_index            = block_device.key == 0 ? 0 : -1 # Ensure the first volume is the boot device
+      delete_on_termination = block_device.value.delete_on_termination
+    }
+  }
 
   network {
     name = data.openstack_networking_network_v2.network.name
@@ -57,7 +84,7 @@ resource "openstack_compute_instance_v2" "virtual_machine" {
   ]
 
   # TODO|2024-05-08| Add gid to user_data so uid/gid are consistent
-  user_data = length(regexall("(?i)^win", var.virtual_machine.image)) > 0 ? null : <<-EOF
+  user_data = length(var.virtual_machine.volumes) > 0 ? null : length(regexall("(?i)^win", var.virtual_machine.image)) > 0 ? null : <<-EOF
   #cloud-config
   hostname: ${local.hostname}
   fqdn: ${local.fqdn}
@@ -85,12 +112,14 @@ resource "openstack_compute_instance_v2" "virtual_machine" {
   EOF
 }
 
+# https://registry.terraform.io/providers/terraform-provider-openstack/openstack/latest/docs/resources/networking_port_v2
 data "openstack_networking_port_v2" "port" {
   network_id = data.openstack_networking_network_v2.network.id
   device_id  = openstack_compute_instance_v2.virtual_machine.id
   fixed_ip   = openstack_compute_instance_v2.virtual_machine.network[0].fixed_ip_v4
 }
 
+# https://registry.terraform.io/providers/terraform-provider-openstack/openstack/latest/docs/resources/networking_floatingip_v2
 resource "openstack_networking_floatingip_v2" "floating_ip" {
   count       = var.virtual_machine.attach_floating_ip ? 1 : 0
   description = local.fqdn
@@ -104,13 +133,14 @@ resource "openstack_networking_floatingip_v2" "floating_ip" {
   ]
 }
 
+# https://registry.terraform.io/providers/terraform-provider-openstack/openstack/latest/docs/resources/networking_floatingip_associate_v2
 resource "openstack_networking_floatingip_associate_v2" "floating_ip" {
   count       = var.virtual_machine.attach_floating_ip ? 1 : 0
   floating_ip = openstack_networking_floatingip_v2.floating_ip[count.index].address
   port_id     = data.openstack_networking_port_v2.port.id
 }
 
-# create an ansible inventory host entry
+# https://registry.terraform.io/providers/ansible/ansible/latest/docs/resources/host
 resource "ansible_host" "virtual_machine" {
   count  = var.virtual_machine.enable_ansible_inventory ? 1 : 0
   name   = local.fqdn

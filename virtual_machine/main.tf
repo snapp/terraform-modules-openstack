@@ -54,7 +54,7 @@ resource "openstack_blockstorage_volume_v3" "volume" {
 # https://registry.terraform.io/providers/terraform-provider-openstack/openstack/latest/docs/resources/compute_instance_v2
 resource "openstack_compute_instance_v2" "virtual_machine" {
   name            = local.instance_name
-  # image_id        = length(var.virtual_machine.volumes) == 0 ? data.openstack_images_image_v2.image.id : null
+  image_id        = length(var.virtual_machine.volumes) == 0 ? data.openstack_images_image_v2.image.id : null
   flavor_id       = data.openstack_compute_flavor_v2.flavor.id
   key_pair        = var.virtual_machine.ssh_keypair
   security_groups = var.virtual_machine.security_groups

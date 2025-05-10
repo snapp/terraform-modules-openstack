@@ -5,7 +5,7 @@ variable "virtual_machine" {
     contact            = string
     description        = string
     flavor             = string
-    image              = string
+    image              = optional(string)
     domain             = string
     groups             = list(string)
     hostname           = string
@@ -13,9 +13,9 @@ variable "virtual_machine" {
     floating_ip_pool   = string
     attach_floating_ip = bool
     security_groups    = list(string)
-    ssh_keypair        = string
-    root_password      = string
-    user = object({
+    ssh_keypair        = optional(string)
+    root_password      = optional(string)
+    user = optional(object({
       username       = string
       display_name   = string
       password       = string
@@ -23,14 +23,14 @@ variable "virtual_machine" {
       ssh_public_key = string
       sudo_rule      = string
       uid            = number
-    })
-    volumes = list(object({
+    }))
+    volumes = optional(list(object({
       name                  = string
       description           = string
       size                  = number
       volume_type           = string
       delete_on_termination = bool
-    }))
+    })))
     enable_ansible_inventory = bool
   })
   description = <<-EOT

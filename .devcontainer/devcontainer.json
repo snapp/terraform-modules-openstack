@@ -11,9 +11,6 @@
         "hashicorp.terraform"
       ],
       "settings": {
-        "github.copilot.enable": {
-          "enabled": false
-        },
         "todo-tree.general.tags": [
           "BUG",
           "FIX",

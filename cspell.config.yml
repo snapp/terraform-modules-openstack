@@ -9,6 +9,7 @@ dictionaries:
   - overrides
 
 words:
+  - blockstorage
   - CDPATH
   - checkwinsize
   - COLORTERM
@@ -28,7 +29,9 @@ words:
   - ignorespace
   - iputils
   - keypair
+  - libatomic
   - nodocs
+  - procps
   - recordset
   - regexall
   - secgroup
@@ -42,6 +45,7 @@ words:
   - tfvars
   - toset
   - truecolor
+  - userns
 
 ignorePaths:
   - "**/.github/CODEOWNERS"

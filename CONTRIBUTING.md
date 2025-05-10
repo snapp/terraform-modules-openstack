@@ -4,17 +4,6 @@
 
 Terraform is used to handle provisioning of systems and tracking their state.
 
-<!-- TODO| ### Installation
-
-    REDO| write terraform install instructions
-    REDO| write terraform-docs install instructions
-    REDO| write instructions on running `terraform-docs markdown
-    REDO| write trivy install instructions
-    REDO| write tflint install instructions
-    REDO| verify checkov and provide install instructions as needed
-    REDO| write instructions on running `terraform fmt -diff -list -recursive -write=true` if terraform formatting issues come from pre-commit
--->
-
 ## pre-commit
 
 To help ensure high-quality contributions this repository includes a [pre-commit](https://pre-commit.com) configuration which terraform fmt -diff -list -recursive -write=true

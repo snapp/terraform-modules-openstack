@@ -6,6 +6,7 @@
   "customizations": {
     "vscode": {
       "extensions": [
+        "github.vscode-github-actions",
         "gruntfuggly.todo-tree",
         "hashicorp.terraform"
       ],
@@ -58,8 +59,12 @@
   },
   "name": "🅣",
   "privileged": false,
+  "remoteUser": "terraform",
   "runArgs": [
-    "--volume",
-    ".devcontainer/bashrc:/root/.bashrc:ro"
+    "--name=terraform-modules-openstack",
+    "--userns=keep-id",
+    "--network=host",
+    "--env-file=${localWorkspaceFolder}/.devcontainer/.env",
+    "--volume=.devcontainer/bash_history:/workspaces/.bash_history:rw"
   ]
 }

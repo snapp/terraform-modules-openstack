@@ -11,6 +11,7 @@ variable "virtual_machine" {
     hostname           = string
     network            = string
     floating_ip_pool   = string
+    floating_ip_domain = string
     attach_floating_ip = bool
     security_groups    = list(string)
     ssh_keypair        = optional(string)
@@ -46,6 +47,7 @@ variable "virtual_machine" {
       hostname : "The optional short (unqualified) hostname of the instance to be created."
       network : "The network the virtual machine resides on."
       floating_ip_pool : "The name of the floating IP pool from which to allocate a floating IP address."
+      floating_ip_domain : "The name of the floating IP domain associated with the floating IP address."
       attach_floating_ip : "Whether to attach a floating IP address to the virtual machine."
       security_groups : "An array of security group names that should be applied to the virtual machine."
       ssh_keypair : "The name of a SSH keypair already loaded in the Openstack project for the authenticating user which will be associated with the default cloud-init user."

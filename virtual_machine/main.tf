@@ -136,7 +136,7 @@ resource "openstack_networking_floatingip_v2" "floating_ip" {
   count       = var.virtual_machine.attach_floating_ip ? 1 : 0
   description = local.fqdn
   dns_name    = lower(local.hostname)
-  dns_domain  = "${lower(local.domain)}."
+  dns_domain  = "${var.virtual_machine.floating_ip_domain}."
   pool        = var.virtual_machine.floating_ip_pool
   fixed_ip    = openstack_compute_instance_v2.virtual_machine.network[count.index].fixed_ip_v4
   port_id     = data.openstack_networking_port_v2.port.id

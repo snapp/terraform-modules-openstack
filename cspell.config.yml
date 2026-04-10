@@ -16,11 +16,13 @@ words:
   - Colour
   - concat
   - Containerfile
+  - diffutils
   - ensurepip
   - floatingip
   - gecos
   - gruntfuggly
   - histappend
+  - HEALTHCHECK
   - HISTCONTROL
   - HISTFILESIZE
   - HISTSIZE
@@ -30,6 +32,7 @@ words:
   - iputils
   - keypair
   - libatomic
+  - myuser
   - nodocs
   - procps
   - recordset

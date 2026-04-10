@@ -34,6 +34,8 @@ variable "virtual_machine" {
       delete_on_termination = bool
     })))
     enable_ansible_inventory = bool
+    ansible_host_override    = optional(bool, false)
+    extra_vars               = optional(map(string), {})
   })
   description = <<-EOT
     virtual_machine = {
@@ -72,6 +74,8 @@ variable "virtual_machine" {
         }
       ]
       enable_ansible_inventory : "Whether to create an Ansible inventory host entry for the virtual machine."
+      ansible_host_override : "When true, injects ansible_host into the inventory host vars so Ansible connects by IP instead of resolving the FQDN — uses the floating IP when attached, otherwise the fixed IP (default: false)."
+      extra_vars : "An optional map of additional Ansible inventory host variables to merge into the host entry (e.g. { ansible_user = \"myuser\", my_custom_var = \"value\" })."
     }
   EOT
 }

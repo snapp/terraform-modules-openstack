@@ -12,3 +12,8 @@ output "virtual_machine" {
   description = "The Openstack Compute Instance representation of the virtual machine."
   value       = openstack_compute_instance_v2.virtual_machine
 }
+
+output "ansible_host" {
+  description = "The Ansible inventory host resource, or null if enable_ansible_inventory is false."
+  value       = one(ansible_host.virtual_machine)
+}

@@ -157,10 +157,16 @@ resource "ansible_host" "virtual_machine" {
   count  = var.virtual_machine.enable_ansible_inventory ? 1 : 0
   name   = local.fqdn
   groups = length(coalesce(var.virtual_machine.groups, [])) > 0 ? var.virtual_machine.groups : ["terraform_managed"]
-  variables = {
-    instance_name = local.instance_name
-    hostname      = local.hostname
-    domain        = local.domain
-    description   = local.description
-  }
+  variables = merge(
+    {
+      instance_name = local.instance_name
+      hostname      = local.hostname
+      domain        = local.domain
+      description   = local.description
+    },
+    var.virtual_machine.ansible_host_override ? {
+      ansible_host = var.virtual_machine.attach_floating_ip ? openstack_networking_floatingip_v2.floating_ip[0].address : openstack_compute_instance_v2.virtual_machine.network[0].fixed_ip_v4
+    } : {},
+    var.virtual_machine.extra_vars
+  )
 }

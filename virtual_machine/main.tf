@@ -10,14 +10,14 @@ terraform {
 
     # https://registry.terraform.io/providers/ansible/ansible/latest/docs
     ansible = {
-      version = "~> 1.3.0"
+      version = "~> 1.4.0"
       source  = "ansible/ansible"
     }
 
     # https://registry.terraform.io/providers/hashicorp/random/latest/docs
     random = {
       source  = "hashicorp/random"
-      version = "~> 3.8.0"
+      version = "~> 3.8.1"
     }
   }
 }

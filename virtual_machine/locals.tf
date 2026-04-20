@@ -20,4 +20,5 @@ locals {
     fqdn: ${local.fqdn}
     contact: ${var.virtual_machine.contact}
   EOT
+
 }

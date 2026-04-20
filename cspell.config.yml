@@ -17,12 +17,13 @@ words:
   - concat
   - Containerfile
   - diffutils
+  - endfor
   - ensurepip
   - floatingip
   - gecos
   - gruntfuggly
-  - histappend
   - HEALTHCHECK
+  - histappend
   - HISTCONTROL
   - HISTFILESIZE
   - HISTSIZE
@@ -34,9 +35,11 @@ words:
   - libatomic
   - myuser
   - nodocs
+  - NOPASSWD
   - procps
   - recordset
   - regexall
+  - runcmd
   - secgroup
   - setopt
   - shopt

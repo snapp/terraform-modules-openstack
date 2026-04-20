@@ -95,33 +95,14 @@ resource "openstack_compute_instance_v2" "virtual_machine" {
     "X-Contact: ${var.virtual_machine.contact}"
   ]
 
-  # TODO|2024-05-08| Add gid to user_data so uid/gid are consistent
-  user_data = var.virtual_machine.image != null && length(regexall("(?i)^win", var.virtual_machine.image)) > 0 ? null : <<-EOF
-  #cloud-config
-  hostname: ${local.hostname}
-  fqdn: ${local.fqdn}
-  prefer_fqdn_over_hostname: true
-  ${var.virtual_machine.user != null || try(coalesce(var.virtual_machine.root_password, ""), "") != "" ? "users:" : ""}
-  ${var.virtual_machine.user != null ? <<-EOT
-      - name: "${var.virtual_machine.user.username}"
-        gecos: "${var.virtual_machine.user.display_name}"
-        ${try(coalesce(var.virtual_machine.user.password, ""), "") != "" ? "hashed_passwd: \"${var.virtual_machine.user.password}\"" : ""}
-        lock-passwd: false
-        ${try(coalesce(var.virtual_machine.user.sudo_rule, ""), "") != "" ? "sudo: \"${var.virtual_machine.user.sudo_rule}\"" : "sudo: false"}
-        ${try(coalesce(var.virtual_machine.user.uid, ""), "") != "" ? "uid: \"${var.virtual_machine.user.uid}\"" : ""}
-        ${try(coalesce(var.virtual_machine.user.uid, ""), "") != "" ? "gid: \"${var.virtual_machine.user.uid}\"" : ""}
-        ${try(coalesce(var.virtual_machine.user.homedir, ""), "") != "" ? "homedir: \"${var.virtual_machine.user.homedir}\"" : ""}
-        ssh_authorized_keys:
-          - ${var.virtual_machine.user.ssh_public_key}
-    EOT
-  : ""}
-  ${try(coalesce(var.virtual_machine.root_password, ""), "") != "" ? <<-EOT
-      - name: root
-        hashed_passwd: ${var.virtual_machine.root_password}
-        lock-passwd: false
-    EOT
-: ""}
-  EOF
+  user_data = var.virtual_machine.image != null && length(regexall("(?i)^win", var.virtual_machine.image)) > 0 ? null : templatefile("${path.module}/templates/userdata.yml.tftpl", {
+    hostname      = local.hostname
+    fqdn          = local.fqdn
+    create_users  = var.virtual_machine.user != null || try(coalesce(var.virtual_machine.root_password, ""), "") != ""
+    user          = var.virtual_machine.user
+    root_password = try(coalesce(var.virtual_machine.root_password, ""), "")
+    runcmd        = coalesce(var.virtual_machine.runcmd, [])
+  })
 }
 
 # https://registry.terraform.io/providers/terraform-provider-openstack/openstack/latest/docs/resources/networking_port_v2

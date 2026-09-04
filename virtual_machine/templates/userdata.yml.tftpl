@@ -9,11 +9,11 @@ users:
 %{ if user != null ~}
   - name: "${user.username}"
     gecos: "${user.display_name}"
-%{ if try(user.password, "") != "" ~}
+%{ if try(coalesce(user.password, ""), "") != "" ~}
     hashed_passwd: "${user.password}"
 %{ endif ~}
     lock_passwd: false
-%{ if try(user.sudo_rule, "") != "" ~}
+%{ if try(coalesce(user.sudo_rule, ""), "") != "" ~}
     sudo: "${user.sudo_rule}"
 %{ else ~}
     sudo: false
@@ -22,7 +22,7 @@ users:
     uid: ${user.uid}
     gid: ${user.uid}
 %{ endif ~}
-%{ if try(user.homedir, "") != "" ~}
+%{ if try(coalesce(user.homedir, ""), "") != "" ~}
     homedir: "${user.homedir}"
 %{ endif ~}
     ssh_authorized_keys:
